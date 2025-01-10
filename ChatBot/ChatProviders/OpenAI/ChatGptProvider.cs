@@ -37,7 +37,7 @@ namespace ChatBot.ChatProviders.OpenAI
             var responseDto = JsonConvert.DeserializeObject<ChatGptResponseDto>(responseJson);
 
             // TODO: Throw exception if reponseDto is null or empty or if responseDto.Choices is null or empty
-            return new Message(responseDto.Choices.First().Message.Content);
+            return new Message(responseDto.Choices.First().Message.Content, MessageAuthor.Bot);
 
         }
     }

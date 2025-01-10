@@ -4,7 +4,7 @@ namespace ChatBot.ChatHistory;
 
 public interface IChatHistory
 {
-    public Task AddMessageAsync(Message message, MessageAuthor messageAuthor, Guid conversationId);
+    public Task AddMessageAsync(Message message, Guid conversationId);
     
-    public IEnumerable<string> GetMessages(Guid conversationId);
+    public Task<IEnumerable<Message>> GetMessages(Guid conversationId);
 }

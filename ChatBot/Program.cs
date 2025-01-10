@@ -83,15 +83,27 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
     .WithOpenApi()
     .RequireAuthorization();
 
-app.MapGet("/chatgpt", async (ChatService chatService) =>
+app.MapGet("/conversation/{id}", async (ChatService chatService, Guid id) =>
 {
-    var response = await chatService.SendMessageAsync(new Message("Hello"), Guid.NewGuid());
+    var response = await chatService.GetMessages(id);
+    return Results.Ok(response);
+});
+
+app.MapPost("/sendMessage", async (ChatService chatService, SendMessageRequest request) =>
+{
+    var response = await chatService.SendMessageAsync(new Message(request.Message, MessageAuthor.User), request.ConversationId);
     return Results.Ok(response);
 });
 
 app.Run();
 
 app.MapControllers();
+
+public class SendMessageRequest
+{
+    public string Message { get; set; }
+    public Guid ConversationId { get; set; }
+}
 
 namespace ChatBot
 {
