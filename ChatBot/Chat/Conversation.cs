@@ -1,4 +1,4 @@
-namespace ChatBot.ChatService;
+namespace ChatBot.Chat;
 
 public class Conversation(Guid id, string name)
 {

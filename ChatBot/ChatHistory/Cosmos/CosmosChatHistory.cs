@@ -1,4 +1,4 @@
-using ChatBot.ChatService;
+using ChatBot.Chat;
 using Microsoft.Azure.Cosmos;
 
 namespace ChatBot.ChatHistory.Cosmos;
@@ -30,7 +30,8 @@ public class CosmosChatHistory(Database database) : IChatHistory
         while (iterator.HasMoreResults)
         {
             var response = await iterator.ReadNextAsync();
-            messages.AddRange(response.ToList().Select(dto => new Message(dto.Content, Enum.Parse<MessageAuthor>(dto.Author))));
+            messages.AddRange(response.ToList()
+                .Select(dto => new Message(dto.Content, Enum.Parse<MessageAuthor>(dto.Author))));
         }
 
         return messages;

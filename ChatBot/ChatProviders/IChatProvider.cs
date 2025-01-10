@@ -1,4 +1,4 @@
-using ChatBot.ChatService;
+using ChatBot.Chat;
 
 namespace ChatBot.ChatProviders;
 

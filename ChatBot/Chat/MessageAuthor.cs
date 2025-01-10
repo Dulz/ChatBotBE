@@ -1,4 +1,4 @@
-namespace ChatBot.ChatService;
+namespace ChatBot.Chat;
 
 public enum MessageAuthor
 {

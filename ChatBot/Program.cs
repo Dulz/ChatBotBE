@@ -1,9 +1,10 @@
 using ChatBot;
+using ChatBot.Chat;
 using ChatBot.ChatHistory;
 using ChatBot.ChatHistory.Cosmos;
 using ChatBot.ChatProviders;
 using ChatBot.ChatProviders.OpenAI;
-using ChatBot.ChatService;
+using ChatBot.Controllers;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web.Resource;
 using Newtonsoft.Json.Serialization;
@@ -17,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add http client
 builder.Services.AddHttpClient<ChatGptProvider>();
+
+builder.Services.AddControllers();
 
 
 builder.Services.AddScoped<IChatProvider, ChatGptProvider>();
@@ -45,16 +48,7 @@ builder.Services.AddControllers()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-
-
-
-
-
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 
 // app.UseHttpsRedirection();
@@ -83,31 +77,15 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
     .WithOpenApi()
     .RequireAuthorization();
 
-app.MapGet("/conversation/{id}", async (ChatService chatService, Guid id) =>
-{
-    var response = await chatService.GetMessages(id);
-    return Results.Ok(response);
-});
+app.MapControllers();
 
-app.MapPost("/sendMessage", async (ChatService chatService, SendMessageRequest request) =>
-{
-    var response = await chatService.SendMessageAsync(new Message(request.Message, MessageAuthor.User), request.ConversationId);
-    return Results.Ok(response);
-});
 
 app.Run();
 
-app.MapControllers();
-
-public class SendMessageRequest
-{
-    public string Message { get; set; }
-    public Guid ConversationId { get; set; }
-}
 
 namespace ChatBot
 {
-    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
     {
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }

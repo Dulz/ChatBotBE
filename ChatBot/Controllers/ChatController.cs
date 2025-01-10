@@ -1,17 +1,25 @@
-using ChatBot.ChatProviders.OpenAI;
+using ChatBot.Chat;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ChatBot.Controllers
+namespace ChatBot.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class ChatController(ChatService chatService) : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ChatController(ChatGptProvider chatGptProvider) : ControllerBase
+    [HttpPost("send")]
+    public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
     {
-        [HttpPost("send")]
-        public async Task<IActionResult> SendMessage()
-        {
-            // var response = await chatGptProvider.SendMessageAsync("");
-            return Ok();
-        }
+        var response =
+            await chatService.SendMessageAsync(new Message(request.Message, MessageAuthor.User),
+                request.ConversationId);
+        return Ok(response);
+    }
+
+    [HttpGet("conversation/{id}")]
+    public async Task<IActionResult> GetConversation(Guid id)
+    {
+        var response = await chatService.GetMessages(id);
+        return Ok(response);
     }
 }
