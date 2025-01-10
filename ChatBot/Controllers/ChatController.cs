@@ -6,7 +6,7 @@ namespace ChatBot.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-// [Authorize]
+[Authorize]
 public class ChatController(ChatService chatService) : ControllerBase
 {
     [HttpPost("send")]
