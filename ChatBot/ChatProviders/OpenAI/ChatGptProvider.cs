@@ -1,11 +1,12 @@
 using System.Text;
+using ChatBot.ChatService;
 using Newtonsoft.Json;
 
 namespace ChatBot.ChatProviders.OpenAI
 {
     public class ChatGptProvider(HttpClient httpClient, IConfiguration configuration) : IChatProvider
     {
-        public async Task<string> SendMessageAsync(string message)
+        public async Task<Message> SendMessageAsync(Message message)
         {
             var requestBody = new
             {
@@ -13,7 +14,7 @@ namespace ChatBot.ChatProviders.OpenAI
                 store = true,
                 messages = new[]
                 {
-                    new { role = "user", content = message },
+                    new { role = "user", content = message.Content },
                 }
             };
 
@@ -30,8 +31,14 @@ namespace ChatBot.ChatProviders.OpenAI
             var response = await httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return responseContent;
+            var responseContent =  response.Content;
+            
+            var responseJson = await responseContent.ReadAsStringAsync();
+            var responseDto = JsonConvert.DeserializeObject<ChatGptResponseDto>(responseJson);
+
+            // TODO: Throw exception if reponseDto is null or empty or if responseDto.Choices is null or empty
+            return new Message(responseDto.Choices.First().Message.Content);
+
         }
     }
 }

@@ -1,6 +1,8 @@
+using ChatBot.ChatService;
+
 namespace ChatBot.ChatProviders;
 
 public interface IChatProvider
 {
-    Task<string> SendMessageAsync(string message);
+    Task<Message> SendMessageAsync(Message message);
 }

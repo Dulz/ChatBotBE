@@ -1,12 +1,10 @@
 using ChatBot;
 using ChatBot.ChatHistory;
+using ChatBot.ChatHistory.Cosmos;
 using ChatBot.ChatProviders;
 using ChatBot.ChatProviders.OpenAI;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ChatBot.ChatService;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Resource;
 using Newtonsoft.Json.Serialization;
 
@@ -85,9 +83,8 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
 
 app.MapGet("/chatgpt", async (IChatProvider chatGptService, IChatHistory chatHistory) =>
 {
-    var response = await chatGptService.SendMessageAsync("write a haiku about ai");
-    await chatHistory.AddMessageAsync(new Message(Guid.NewGuid().ToString(), Guid.NewGuid(), MessageAuthor.Bot,
-        "message"));
+    var response = await chatGptService.SendMessageAsync(new Message("write a haiku"));
+    await chatHistory.AddMessageAsync(new Message(response.Content), MessageAuthor.Bot, new Conversation(Guid.NewGuid(), name: "convo"));
     return Results.Ok(response);
 });
 
@@ -95,7 +92,10 @@ app.Run();
 
 app.MapControllers();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+namespace ChatBot
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }

@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using ChatBot.ChatProviders.OpenAI;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChatBot.Controllers
 {
@@ -11,8 +10,8 @@ namespace ChatBot.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage()
         {
-            var response = await chatGptProvider.SendMessageAsync("");
-            return Ok(response);
+            // var response = await chatGptProvider.SendMessageAsync("");
+            return Ok();
         }
     }
 }
