@@ -11,10 +11,10 @@ public class CosmosChatHistory(Database database) : IChatHistory
     private const string ContainerId = "Chat";
 
 
-    public async Task AddMessageAsync(Message message, MessageAuthor messageAuthor, Conversation conversation)
+    public async Task AddMessageAsync(Message message, MessageAuthor messageAuthor, Guid conversationId)
     {
         var chatContainer = await GetChatContainer();
-        var messageDto = new MessageDto(Guid.NewGuid().ToString(), conversation.Id, messageAuthor, message.Content);
+        var messageDto = new MessageDto(Guid.NewGuid().ToString(), conversationId, messageAuthor, message.Content);
         await chatContainer.CreateItemAsync(messageDto, new PartitionKey(messageDto.ConversationId.ToString()));
     }
 

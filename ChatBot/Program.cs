@@ -28,6 +28,8 @@ var database = cosmosClient.GetDatabase("ChatDb");
 
 builder.Services.AddSingleton<IChatHistory, CosmosChatHistory>(_ => new CosmosChatHistory(database));
 
+builder.Services.AddScoped<ChatService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -81,10 +83,9 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
     .WithOpenApi()
     .RequireAuthorization();
 
-app.MapGet("/chatgpt", async (IChatProvider chatGptService, IChatHistory chatHistory) =>
+app.MapGet("/chatgpt", async (ChatService chatService) =>
 {
-    var response = await chatGptService.SendMessageAsync(new Message("write a haiku"));
-    await chatHistory.AddMessageAsync(new Message(response.Content), MessageAuthor.Bot, new Conversation(Guid.NewGuid(), name: "convo"));
+    var response = await chatService.SendMessageAsync(new Message("Hello"), Guid.NewGuid());
     return Results.Ok(response);
 });
 
