@@ -5,16 +5,18 @@ using ChatBot.ChatHistory.Cosmos;
 using ChatBot.ChatProviders;
 using ChatBot.ChatProviders.OpenAI;
 using ChatBot.Controllers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
-// builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
+builder.Services.AddAuthorization();
 
 // Add http client
 builder.Services.AddHttpClient<ChatGptProvider>();
@@ -35,15 +37,6 @@ builder.Services.AddScoped<ChatService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new CamelCaseNamingStrategy()
-        };
-    });
 
 var app = builder.Build();
 

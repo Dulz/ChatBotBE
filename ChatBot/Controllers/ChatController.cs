@@ -1,10 +1,12 @@
 using ChatBot.Chat;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatBot.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+// [Authorize]
 public class ChatController(ChatService chatService) : ControllerBase
 {
     [HttpPost("send")]
