@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using ChatBot.Chat;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatBot.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class ChatController(ChatService chatService) : ControllerBase
 {
     [HttpPost("send")]
@@ -26,7 +29,14 @@ public class ChatController(ChatService chatService) : ControllerBase
     [HttpGet("conversations")]
     public async Task<IActionResult> GetConversations()
     {
-        var response = await chatService.GetConversations(Guid.Parse("00000000-0000-0000-0000-000000000000"));
+        var userId = GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        
+        var response = await chatService.GetConversations(userId.Value);
+        
         return Ok(response);
     }
     
@@ -34,8 +44,24 @@ public class ChatController(ChatService chatService) : ControllerBase
     [HttpPost("conversation")]
     public async Task<IActionResult> CreateConversation([FromBody] CreateConversationRequest request)
     {
-        var response = await chatService.CreateConversation(request.Name, Guid.Parse("00000000-0000-0000-0000-000000000000"));
+        var userId = GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        var response = await chatService.CreateConversation(request.Name, userId.Value);
         return Ok(response);
+    }
+    
+    private Guid? GetUserId()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return null;
+        }
+        
+        return Guid.Parse(userId);
     }
     
 }
