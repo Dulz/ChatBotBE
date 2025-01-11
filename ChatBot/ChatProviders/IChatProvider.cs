@@ -4,5 +4,5 @@ namespace ChatBot.ChatProviders;
 
 public interface IChatProvider
 {
-    Task<Message> SendMessageAsync(Message message);
+    Task<Message> SendMessagesAsync(IEnumerable<Message> messages);
 }

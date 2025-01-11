@@ -1,5 +1,7 @@
+using Newtonsoft.Json;
+
 namespace ChatBot.ChatProviders.OpenAI;
 
-// ReSharper disable once ClassNeverInstantiated.Global
-// Instantiated by API deserialization
-internal record ChatGptMessageDto(string Role, string Content);
+internal record ChatGptMessageDto(
+    [property: JsonProperty("role")] string Role, 
+    [property: JsonProperty("content")] string Content);

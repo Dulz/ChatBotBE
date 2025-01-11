@@ -5,10 +5,8 @@ namespace ChatBot.ChatHistory.Cosmos;
 
 public class CosmosChatHistory(Database database) : IChatHistory
 {
-    // The name of the database and container we will create
-
-    private const string DatabaseId = "ChatDb";
     private const string ContainerId = "Chat";
+    private const string UserContainerId = "User";
 
 
     public async Task AddMessageAsync(Message message, Guid conversationId)
@@ -37,9 +35,44 @@ public class CosmosChatHistory(Database database) : IChatHistory
         return messages;
     }
 
+    public async Task<IEnumerable<Conversation>> GetConversations(Guid userId)
+    {
+        var chatContainer = await GetUserContainer();
+        
+        var query = new QueryDefinition("SELECT * FROM c WHERE c.userId = @userId")
+            .WithParameter("@userId", userId.ToString());
+        
+        var conversations = new List<Conversation>();
+        var iterator = chatContainer.GetItemQueryIterator<ConversationDto>(query);
+        
+        while (iterator.HasMoreResults)
+        {
+            var response = await iterator.ReadNextAsync();
+            conversations.AddRange(response.ToList()
+                .Select(dto => new Conversation(dto.Id, dto.Name)));
+        }
+
+        return conversations;
+
+    }
+
+    public async Task<Conversation> CreateConversation(string name, Guid userId)
+    {
+        var chatContainer = await GetUserContainer();
+        var conversationDto = new ConversationDto(Guid.NewGuid(), name, userId);
+        await chatContainer.CreateItemAsync(conversationDto, new PartitionKey(userId.ToString()));
+        return new Conversation(conversationDto.Id, conversationDto.Name);
+    }
+
     private async Task<Container> GetChatContainer()
     {
         await database.CreateContainerIfNotExistsAsync(ContainerId, "/conversationId");
         return database.GetContainer(ContainerId);
+    }
+    
+    private async Task<Container> GetUserContainer()
+    {
+        await database.CreateContainerIfNotExistsAsync(UserContainerId, "/userId");
+        return database.GetContainer(UserContainerId);
     }
 }

@@ -6,16 +6,13 @@ namespace ChatBot.ChatProviders.OpenAI;
 
 public class ChatGptProvider(HttpClient httpClient, IConfiguration configuration) : IChatProvider
 {
-    public async Task<Message> SendMessageAsync(Message message)
+    public async Task<Message> SendMessagesAsync(IEnumerable<Message> messages)
     {
         var requestBody = new
         {
             model = "gpt-4o-mini",
             store = true,
-            messages = new[]
-            {
-                new { role = "user", content = message.Content }
-            }
+            messages = ParseMessages(messages)
         };
 
         var json = JsonConvert.SerializeObject(requestBody);
@@ -38,5 +35,27 @@ public class ChatGptProvider(HttpClient httpClient, IConfiguration configuration
 
         // TODO: Throw exception if reponseDto is null or empty or if responseDto.Choices is null or empty
         return new Message(responseDto.Choices.First().Message.Content, MessageAuthor.Bot);
+    }
+    
+    private IEnumerable<ChatGptMessageDto> ParseMessages(IEnumerable<Message> messages)
+    {
+        return messages.Select(message => new ChatGptMessageDto
+        (
+           ParseRole(message.Author),
+            message.Content
+        ));
+    }
+    
+    private string ParseRole(MessageAuthor author)
+    {
+        switch (author)
+        {
+            case MessageAuthor.Bot:
+                return "assistant";
+            case MessageAuthor.User:
+                return "user";
+            default:
+                throw new ArgumentOutOfRangeException(nameof(author), author, null);
+        }
     }
 }
