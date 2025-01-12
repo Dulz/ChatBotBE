@@ -51,13 +51,8 @@ public class CosmosChatHistoryTests
     {
         // Arrange
         var conversationId = Guid.NewGuid();
-        var emptyFeedResponseMock = new Mock<FeedResponse<MessageDto>>();
-        emptyFeedResponseMock.Setup(fr => fr.GetEnumerator()).Returns(new List<MessageDto>().GetEnumerator());
-
-        var emptyIteratorMock = new Mock<FeedIterator<MessageDto>>();
-        emptyIteratorMock.Setup(i => i.HasMoreResults).Returns(false);
-        emptyIteratorMock.Setup(i => i.ReadNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(emptyFeedResponseMock.Object);
+        var emptyFeedResponseMock = CreateFeedResponseMock(new List<MessageDto>());
+        var emptyIteratorMock = CreateFeedIteratorMock(emptyFeedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<MessageDto>(It.IsAny<QueryDefinition>(), null, null))
             .Returns(emptyIteratorMock.Object);
@@ -79,11 +74,8 @@ public class CosmosChatHistoryTests
             new(Guid.NewGuid(), conversationId, MessageAuthor.User, "Hello"),
             new(Guid.NewGuid(), conversationId, MessageAuthor.Bot, "How can I help you?")
         };
-        var feedResponseMock = new Mock<FeedResponse<MessageDto>>();
-        feedResponseMock.Setup(fr => fr.GetEnumerator()).Returns(messages.GetEnumerator());
-        var iteratorMock = new Mock<FeedIterator<MessageDto>>();
-        iteratorMock.SetupSequence(i => i.HasMoreResults).Returns(true).Returns(false);
-        iteratorMock.Setup(i => i.ReadNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(feedResponseMock.Object);
+        var feedResponseMock = CreateFeedResponseMock(messages);
+        var iteratorMock = CreateFeedIteratorMock(feedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<MessageDto>(It.IsAny<QueryDefinition>(), null, null))
             .Returns(iteratorMock.Object);
@@ -105,12 +97,8 @@ public class CosmosChatHistoryTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var emptyFeedResponseMock = new Mock<FeedResponse<ConversationDto>>();
-        emptyFeedResponseMock.Setup(fr => fr.GetEnumerator()).Returns(new List<ConversationDto>().GetEnumerator());
-        var emptyIteratorMock = new Mock<FeedIterator<ConversationDto>>();
-        emptyIteratorMock.Setup(i => i.HasMoreResults).Returns(false);
-        emptyIteratorMock.Setup(i => i.ReadNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(emptyFeedResponseMock.Object);
+        var emptyFeedResponseMock = CreateFeedResponseMock(new List<ConversationDto>());
+        var emptyIteratorMock = CreateFeedIteratorMock(emptyFeedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(), null, null))
             .Returns(emptyIteratorMock.Object);
@@ -132,11 +120,8 @@ public class CosmosChatHistoryTests
             new(Guid.NewGuid(), "Conversation 1", userId),
             new(Guid.NewGuid(), "Conversation 2", userId)
         };
-        var feedResponseMock = new Mock<FeedResponse<ConversationDto>>();
-        feedResponseMock.Setup(fr => fr.GetEnumerator()).Returns(conversations.GetEnumerator());
-        var iteratorMock = new Mock<FeedIterator<ConversationDto>>();
-        iteratorMock.SetupSequence(i => i.HasMoreResults).Returns(true).Returns(false);
-        iteratorMock.Setup(i => i.ReadNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(feedResponseMock.Object);
+        var feedResponseMock = CreateFeedResponseMock(conversations);
+        var iteratorMock = CreateFeedIteratorMock(feedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(), null, null))
             .Returns(iteratorMock.Object);
@@ -192,15 +177,8 @@ public class CosmosChatHistoryTests
         var conversationId = Guid.NewGuid();
         var conversationDto = new ConversationDto(conversationId, "Test Conversation", userId);
 
-        var feedResponseMock = new Mock<FeedResponse<ConversationDto>>();
-        feedResponseMock.Setup(fr => fr.Count).Returns(1);
-        feedResponseMock.Setup(fr => fr.GetEnumerator())
-            .Returns(new List<ConversationDto> { conversationDto }.GetEnumerator());
-
-        var feedIteratorMock = new Mock<FeedIterator<ConversationDto>>();
-        feedIteratorMock.SetupSequence(fi => fi.HasMoreResults).Returns(true).Returns(false);
-        feedIteratorMock.Setup(fi => fi.ReadNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(feedResponseMock.Object);
+        var feedResponseMock = CreateFeedResponseMock(new List<ConversationDto> { conversationDto });
+        var feedIteratorMock = CreateFeedIteratorMock(feedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(),
                 It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
@@ -220,22 +198,35 @@ public class CosmosChatHistoryTests
         var userId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
-        var feedResponseMock = new Mock<FeedResponse<ConversationDto>>();
-        feedResponseMock.Setup(fr => fr.Count).Returns(0);
-
-        var feedIteratorMock = new Mock<FeedIterator<ConversationDto>>();
-        feedIteratorMock.SetupSequence(fi => fi.HasMoreResults).Returns(true).Returns(false);
-        feedIteratorMock.Setup(fi => fi.ReadNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(feedResponseMock.Object);
+        var feedResponseMock = CreateFeedResponseMock(new List<ConversationDto>());
+        var feedIteratorMock = CreateFeedIteratorMock(feedResponseMock);
 
         _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(),
                 It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
             .Returns(feedIteratorMock.Object);
-
+        
         // Act
         var result = await _cosmosChatHistory.UserHasConversation(userId, conversationId);
 
         // Assert
         Assert.That(result, Is.False);
+    }
+
+    private Mock<FeedResponse<T>> CreateFeedResponseMock<T>(IList<T> items)
+    {
+        var feedResponseMock = new Mock<FeedResponse<T>>();
+        using var enumerator = items.GetEnumerator();
+        feedResponseMock.Setup(fr => fr.GetEnumerator()).Returns(enumerator);
+        feedResponseMock.Setup(fr => fr.Count).Returns(items.Count);
+        return feedResponseMock;
+    }
+
+    private Mock<FeedIterator<T>> CreateFeedIteratorMock<T>(Mock<FeedResponse<T>> feedResponseMock)
+    {
+        var feedIteratorMock = new Mock<FeedIterator<T>>();
+        feedIteratorMock.SetupSequence(fi => fi.HasMoreResults).Returns(true).Returns(false);
+        feedIteratorMock.Setup(fi => fi.ReadNextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(feedResponseMock.Object);
+        return feedIteratorMock;
     }
 }
