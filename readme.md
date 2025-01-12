@@ -32,10 +32,13 @@ Meaning we are unlikely to need to perform complex queries on the data that woul
 - OpenAI and ChatGPT are obvious choices due to their popularity and ease of use.
 - Azure AD B2C was chosen to keep with the Azure hosting approach. Although in retrospect I have found it to be very cumbersome to configure and a huge time sink. It also doesn't look the best on the frontend.
 
-### Considerations
+### Considerations and improvements
 - If the app was to be further developed it would be good to have a local setup for OpenAI and CosmosDB. This would allow for easier testing and development.
 - Further integration testing for the CosmosDB and OpenAI providers would be beneficial.
 - Better error handling and logging. Especially for the OpenAI provider and different responses from the API.
+- Pagination of chat history would be good to have for the frontend. When it comes to sending the history to ChatGPT it would be a bit tricky to decide how much history to send to maintain context.
+- Validation of the input to the API. Like restricting the number of characters.
+- Streaming support.
 
 ### Hosting and Deployment
 The app is hosted on Azure using Azure App Services.
