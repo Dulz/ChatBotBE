@@ -1,6 +1,7 @@
 using System.Net;
 using ChatBot.Chat;
 using ChatBot.ChatProviders.OpenAI;
+using ChatBot.ChatProviders.OpenAI.Dtos;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;

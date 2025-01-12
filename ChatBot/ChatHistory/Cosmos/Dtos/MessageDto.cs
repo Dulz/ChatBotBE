@@ -1,7 +1,7 @@
 using ChatBot.Chat;
 using Newtonsoft.Json;
 
-namespace ChatBot.ChatHistory.Cosmos;
+namespace ChatBot.ChatHistory.Cosmos.Dtos;
 
 internal record MessageDto(
     [property: JsonProperty("id")] string Id,

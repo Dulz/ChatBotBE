@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace ChatBot.ChatHistory.Cosmos;
+namespace ChatBot.ChatHistory.Cosmos.Dtos;
 
 public record ConversationDto(
     [property: JsonProperty("id")] Guid Id,

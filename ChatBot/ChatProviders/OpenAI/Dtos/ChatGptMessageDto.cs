@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace ChatBot.ChatProviders.OpenAI;
+namespace ChatBot.ChatProviders.OpenAI.Dtos;
 
 internal record ChatGptMessageDto(
     [property: JsonProperty("role")] string Role,

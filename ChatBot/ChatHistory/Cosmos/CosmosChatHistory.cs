@@ -1,4 +1,5 @@
 using ChatBot.Chat;
+using ChatBot.ChatHistory.Cosmos.Dtos;
 using Microsoft.Azure.Cosmos;
 
 namespace ChatBot.ChatHistory.Cosmos;

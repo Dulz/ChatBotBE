@@ -1,5 +1,6 @@
 using ChatBot.Chat;
 using ChatBot.ChatHistory.Cosmos;
+using ChatBot.ChatHistory.Cosmos.Dtos;
 using Microsoft.Azure.Cosmos;
 using Moq;
 

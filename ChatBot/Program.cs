@@ -28,14 +28,14 @@ async Task ConfigureServices(WebApplicationBuilder webApplicationBuilder)
         .AddMicrosoftIdentityWebApi(webApplicationBuilder.Configuration.GetSection("AzureAdB2C"),
             subscribeToJwtBearerMiddlewareDiagnosticsEvents: true);
     webApplicationBuilder.Services.AddAuthorization();
-    
+
     // CORS
     webApplicationBuilder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowSpecificOrigins",
             corsPolicyBuilder =>
             {
-                corsPolicyBuilder.WithOrigins("https://lemon-pond-040ee4e00.4.azurestaticapps.net", "http://localhost:3000")
+                corsPolicyBuilder.WithOrigins(webApplicationBuilder.Configuration["Cors:AllowedOrigins"] ?? "")
                     .WithMethods("GET", "POST")
                     .WithHeaders("Content-Type", "Authorization");
             });

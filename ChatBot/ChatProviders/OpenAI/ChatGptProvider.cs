@@ -1,5 +1,6 @@
 using System.Text;
 using ChatBot.Chat;
+using ChatBot.ChatProviders.OpenAI.Dtos;
 using Newtonsoft.Json;
 
 namespace ChatBot.ChatProviders.OpenAI;

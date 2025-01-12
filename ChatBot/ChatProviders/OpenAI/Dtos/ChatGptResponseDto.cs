@@ -1,4 +1,4 @@
-namespace ChatBot.ChatProviders.OpenAI;
+namespace ChatBot.ChatProviders.OpenAI.Dtos;
 
 internal record ChatGptResponseDto(
     string Id,
