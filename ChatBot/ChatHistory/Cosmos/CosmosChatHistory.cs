@@ -12,7 +12,7 @@ public class CosmosChatHistory(Database database) : IChatHistory
     public async Task AddMessageAsync(Message message, Guid conversationId)
     {
         var chatContainer = database.GetContainer(ContainerId);
-        var messageDto = new MessageDto(Guid.NewGuid().ToString(), conversationId, message.Author, message.Content);
+        var messageDto = new MessageDto(Guid.NewGuid(), conversationId, message.Author, message.Content);
         await chatContainer.CreateItemAsync(messageDto, new PartitionKey(messageDto.ConversationId.ToString()));
     }
 
@@ -24,7 +24,6 @@ public class CosmosChatHistory(Database database) : IChatHistory
 
         var messages = new List<Message>();
         var iterator = chatContainer.GetItemQueryIterator<MessageDto>(query);
-
         while (iterator.HasMoreResults)
         {
             var response = await iterator.ReadNextAsync();
@@ -44,7 +43,6 @@ public class CosmosChatHistory(Database database) : IChatHistory
 
         var conversations = new List<Conversation>();
         var iterator = chatContainer.GetItemQueryIterator<ConversationDto>(query);
-
         while (iterator.HasMoreResults)
         {
             var response = await iterator.ReadNextAsync();

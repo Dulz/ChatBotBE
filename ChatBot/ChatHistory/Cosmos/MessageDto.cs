@@ -12,8 +12,8 @@ internal record MessageDto(
 )
 {
     [JsonConstructor]
-    public MessageDto(string id, Guid conversationId, MessageAuthor author, string content)
-        : this(id, conversationId, author.ToString(), content)
+    public MessageDto(Guid id, Guid conversationId, MessageAuthor author, string content)
+        : this(id.ToString(), conversationId, author.ToString(), content)
     {
     }
 }

@@ -10,7 +10,7 @@ public static class CosmosDbFactory
             new CosmosClient(configuration["CosmosDb:EndPointUri"], configuration["CosmosDb:PrimaryKey"]);
         await cosmosClient.CreateDatabaseIfNotExistsAsync("ChatDb");
         var database = cosmosClient.GetDatabase("ChatDb");
-        
+
         await CreateContainers(database);
 
         return database;

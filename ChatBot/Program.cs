@@ -31,7 +31,6 @@ async Task ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 
     // Development dependencies
     if (webApplicationBuilder.Environment.IsDevelopment())
-    {
         // Allow CORS
         webApplicationBuilder.Services.AddCors(options =>
         {
@@ -43,7 +42,6 @@ async Task ConfigureServices(WebApplicationBuilder webApplicationBuilder)
                         .AllowAnyHeader();
                 });
         });
-    }
 
     webApplicationBuilder.Services.AddControllers();
 

@@ -9,9 +9,9 @@ public class ChatService(IChatProvider chatProvider, IChatHistory chatHistory)
     {
         var messages = (await GetMessages(conversationId)).ToList();
         messages.Add(message);
-        
+
         var addMessageTask = chatHistory.AddMessageAsync(message, conversationId);
-        
+
         var chatResponseTask = chatProvider.SendMessagesAsync(messages);
 
         await Task.WhenAll(addMessageTask, chatResponseTask);
