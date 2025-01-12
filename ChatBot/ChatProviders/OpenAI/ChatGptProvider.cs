@@ -17,8 +17,12 @@ public class ChatGptProvider(HttpClient httpClient, IConfiguration configuration
 
         var responseJson = await response.Content.ReadAsStringAsync();
         var responseDto = JsonConvert.DeserializeObject<ChatGptResponseDto>(responseJson);
-
-        // TODO: Throw exception if reponseDto is null or empty or if responseDto.Choices is null or empty
+        
+        if (responseDto is null || !responseDto.Choices.Any())
+        {
+            throw new Exception("No choices returned from OpenAI");
+        }
+        
         return new Message(responseDto.Choices.First().Message.Content, MessageAuthor.Bot);
     }
 

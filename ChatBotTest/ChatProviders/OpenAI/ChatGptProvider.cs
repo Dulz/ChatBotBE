@@ -80,4 +80,31 @@ public class ChatGptProviderTests
             Assert.That(result.Author, Is.EqualTo(MessageAuthor.Bot));
         });
     }
+
+    [Test]
+    public void SendMessagesAsync_ShouldThrowException_WhenNoChoicesReturned()
+    {
+        // Arrange
+        var messages = new List<Message>
+        {
+            new("Hello", MessageAuthor.User)
+        };
+        
+        var responseContent = new StringContent(JsonConvert.SerializeObject(null));
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = responseContent
+        };
+
+        _httpMessageHandlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(responseMessage);
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<Exception>(async () => await _chatGptProvider.SendMessagesAsync(messages));
+        Assert.That(ex.Message, Is.EqualTo("No choices returned from OpenAI"));
+    }
 }
