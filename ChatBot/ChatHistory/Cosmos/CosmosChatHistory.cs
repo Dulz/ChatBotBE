@@ -57,7 +57,7 @@ public class CosmosChatHistory(Database database) : IChatHistory
     {
         var chatContainer = database.GetContainer(UserContainerId);
         var conversationDto = new ConversationDto(Guid.NewGuid(), name, userId);
-        await chatContainer.CreateItemAsync(conversationDto, new PartitionKey(userId.ToString()));
-        return new Conversation(conversationDto.Id, conversationDto.Name);
+        var item = await chatContainer.CreateItemAsync(conversationDto, new PartitionKey(userId.ToString()));
+        return new Conversation(item.Resource.Id, item.Resource.Name);
     }
 }
