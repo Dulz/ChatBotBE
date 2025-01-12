@@ -11,7 +11,7 @@ await ConfigureServices(builder);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment()) app.UseCors("AllowAllOrigins");
+app.UseCors("AllowSpecificOrigins");
 
 app.UseHttpsRedirection();
 
@@ -28,20 +28,18 @@ async Task ConfigureServices(WebApplicationBuilder webApplicationBuilder)
         .AddMicrosoftIdentityWebApi(webApplicationBuilder.Configuration.GetSection("AzureAdB2C"),
             subscribeToJwtBearerMiddlewareDiagnosticsEvents: true);
     webApplicationBuilder.Services.AddAuthorization();
-
-    // Development dependencies
-    if (webApplicationBuilder.Environment.IsDevelopment())
-        // Allow CORS
-        webApplicationBuilder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAllOrigins",
-                corsPolicyBuilder =>
-                {
-                    corsPolicyBuilder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
-        });
+    
+    // CORS
+    webApplicationBuilder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowSpecificOrigins",
+            corsPolicyBuilder =>
+            {
+                corsPolicyBuilder.WithOrigins("https://lemon-pond-040ee4e00.4.azurestaticapps.net", "http://localhost:3000")
+                    .WithMethods("GET", "POST")
+                    .WithHeaders("Content-Type", "Authorization");
+            });
+    });
 
     webApplicationBuilder.Services.AddControllers();
 
