@@ -35,6 +35,18 @@ public class CosmosChatHistory(Database database) : IChatHistory
         return messages;
     }
 
+    public async Task<bool> UserHasConversation(Guid userId, Guid conversationId)
+    {
+        var chatContainer = database.GetContainer(UserContainerId);
+        var query = new QueryDefinition("SELECT * FROM c WHERE c.userId = @userId AND c.id = @conversationId")
+            .WithParameter("@userId", userId.ToString())
+            .WithParameter("@conversationId", conversationId.ToString());
+
+        var iterator = chatContainer.GetItemQueryIterator<ConversationDto>(query);
+        var response = await iterator.ReadNextAsync();
+        return response.Count != 0;
+    }
+
     public async Task<IEnumerable<Conversation>> GetConversations(Guid userId)
     {
         var chatContainer = database.GetContainer(UserContainerId);

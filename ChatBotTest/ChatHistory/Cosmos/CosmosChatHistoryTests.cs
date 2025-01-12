@@ -183,4 +183,59 @@ public class CosmosChatHistoryTests
             null,
             It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Test]
+    public async Task UserHasConversation_ShouldReturnTrue_WhenConversationExists()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var conversationId = Guid.NewGuid();
+        var conversationDto = new ConversationDto(conversationId, "Test Conversation", userId);
+
+        var feedResponseMock = new Mock<FeedResponse<ConversationDto>>();
+        feedResponseMock.Setup(fr => fr.Count).Returns(1);
+        feedResponseMock.Setup(fr => fr.GetEnumerator())
+            .Returns(new List<ConversationDto> { conversationDto }.GetEnumerator());
+
+        var feedIteratorMock = new Mock<FeedIterator<ConversationDto>>();
+        feedIteratorMock.SetupSequence(fi => fi.HasMoreResults).Returns(true).Returns(false);
+        feedIteratorMock.Setup(fi => fi.ReadNextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(feedResponseMock.Object);
+
+        _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(),
+                It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+            .Returns(feedIteratorMock.Object);
+
+        // Act
+        var result = await _cosmosChatHistory.UserHasConversation(userId, conversationId);
+
+        // Assert
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public async Task UserHasConversation_ShouldReturnFalse_WhenConversationDoesNotExist()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var conversationId = Guid.NewGuid();
+
+        var feedResponseMock = new Mock<FeedResponse<ConversationDto>>();
+        feedResponseMock.Setup(fr => fr.Count).Returns(0);
+
+        var feedIteratorMock = new Mock<FeedIterator<ConversationDto>>();
+        feedIteratorMock.SetupSequence(fi => fi.HasMoreResults).Returns(true).Returns(false);
+        feedIteratorMock.Setup(fi => fi.ReadNextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(feedResponseMock.Object);
+
+        _containerMock.Setup(c => c.GetItemQueryIterator<ConversationDto>(It.IsAny<QueryDefinition>(),
+                It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+            .Returns(feedIteratorMock.Object);
+
+        // Act
+        var result = await _cosmosChatHistory.UserHasConversation(userId, conversationId);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
 }

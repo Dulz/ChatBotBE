@@ -90,7 +90,7 @@ public class ChatGptProviderTests
         {
             new("Hello", MessageAuthor.User)
         };
-        
+
         var responseContent = new StringContent(JsonConvert.SerializeObject(null));
         var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
         {

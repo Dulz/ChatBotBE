@@ -3,11 +3,12 @@ using ChatBot.ChatProviders;
 
 namespace ChatBot.Chat;
 
-public class ChatService(IChatProvider chatProvider, IChatHistory chatHistory)
+public class ChatService(IChatProvider chatProvider, IChatHistory chatHistory) : IChatService
 {
-    public async Task<Message> SendMessageAsync(Message message, Guid conversationId)
+    public async Task<Message> SendMessageAsync(Message message, Guid userId, Guid conversationId)
     {
-        var messages = (await GetMessages(conversationId)).ToList();
+        var messages = (await GetMessages(userId, conversationId)).ToList();
+
         messages.Add(message);
 
         var addMessageTask = chatHistory.AddMessageAsync(message, conversationId);
@@ -21,8 +22,11 @@ public class ChatService(IChatProvider chatProvider, IChatHistory chatHistory)
         return chatResponseTask.Result;
     }
 
-    public async Task<IEnumerable<Message>> GetMessages(Guid conversationId)
+    public async Task<IEnumerable<Message>> GetMessages(Guid userId, Guid conversationId)
     {
+        if (!await chatHistory.UserHasConversation(userId, conversationId))
+            throw new UnauthorizedAccessException("User does not have access to this conversation");
+
         return await chatHistory.GetMessages(conversationId);
     }
 

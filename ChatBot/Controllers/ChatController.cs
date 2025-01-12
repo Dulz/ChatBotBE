@@ -9,22 +9,44 @@ namespace ChatBot.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class ChatController(ChatService chatService) : ControllerBase
+public class ChatController(IChatService chatService) : ControllerBase
 {
     [HttpPost("send")]
     public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
     {
-        var response =
-            await chatService.SendMessageAsync(new Message(request.Message, MessageAuthor.User),
-                request.ConversationId);
-        return Ok(response);
+        var userId = GetUserId();
+        if (userId is null) return Unauthorized();
+
+        try
+        {
+            var response =
+                await chatService.SendMessageAsync(new Message(request.Message, MessageAuthor.User),
+                    userId.Value,
+                    request.ConversationId);
+
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
     }
 
     [HttpGet("conversation/{id}")]
     public async Task<IActionResult> GetConversation(Guid id)
     {
-        var response = await chatService.GetMessages(id);
-        return Ok(response);
+        var userId = GetUserId();
+        if (userId is null) return Unauthorized();
+
+        try
+        {
+            var response = await chatService.GetMessages(userId.Value, id);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
     }
 
     [HttpGet("conversations")]
@@ -43,9 +65,9 @@ public class ChatController(ChatService chatService) : ControllerBase
     {
         var userId = GetUserId();
         if (userId is null) return Unauthorized();
-        
+
         var response = await chatService.CreateConversation(request.Name, userId.Value);
-        
+
         return Ok(response);
     }
 

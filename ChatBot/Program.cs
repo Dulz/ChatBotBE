@@ -47,7 +47,7 @@ async Task ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 
     // DI configuration
     webApplicationBuilder.Services.AddScoped<IChatProvider, ChatGptProvider>();
-    webApplicationBuilder.Services.AddScoped<ChatService>();
+    webApplicationBuilder.Services.AddScoped<IChatService, ChatService>();
     var database = await CosmosDbFactory.GetDatabase(webApplicationBuilder.Configuration);
     webApplicationBuilder.Services.AddSingleton<IChatHistory, CosmosChatHistory>(_ => new CosmosChatHistory(database));
 }

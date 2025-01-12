@@ -11,4 +11,6 @@ public interface IChatHistory
     Task<IEnumerable<Conversation>> GetConversations(Guid userId);
 
     Task<Conversation> CreateConversation(string name, Guid userId);
+    
+    Task<bool> UserHasConversation(Guid userId, Guid conversationId);
 }
